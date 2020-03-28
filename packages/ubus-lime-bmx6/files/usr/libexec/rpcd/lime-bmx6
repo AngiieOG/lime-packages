@@ -16,13 +16,6 @@ local function printJson (obj)
     print(json.stringify(obj))
 end
 
-local function shell(command)
-    -- TODO(nicoechaniz): sanitize or evaluate if this is a security risk
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
 local conn = ubus.connect()
 if not conn then
@@ -54,7 +47,7 @@ function bmx6get(field, host)
 	else
 
 		if json_url[1] == "exec" then
-			raw = shell(json_url[2]..' '..field)
+			raw = utils.unsafe_shell(json_url[2]..' '..field)
 		else
 			print_error("bmx6 json url not recognized, cannot fetch bmx6 daemon data. Use http: or exec:",true)
 			return nil

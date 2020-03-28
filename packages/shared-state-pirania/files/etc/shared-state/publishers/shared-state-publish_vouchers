@@ -20,19 +20,13 @@
 local fs = require("nixio.fs")
 local JSON = require("luci.jsonc")
 
-local function shell(command)
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
-local vouchers = JSON.parse(shell('voucher list_vouchers')) or {}
+local vouchers = JSON.parse(utils.unsafe_shell('voucher list_vouchers')) or {}
 local result = {}
 
 for _,voucher in pairs(vouchers) do
         local text = string.gsub(JSON.stringify(voucher), "\"", "")
-        local hash = shell('echo "'..text..'" | md5sum | cut -d " " -f 1'):gsub("\n","")
+        local hash = utils.unsafe_shell('echo "'..text..'" | md5sum | cut -d " " -f 1'):gsub("\n","")
         result[hash] = voucher
 end
 

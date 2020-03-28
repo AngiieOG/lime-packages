@@ -20,12 +20,6 @@ if not conn then
     error("Failed to connect to ubus")
 end
 
-local function shell(command)
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
 local function read_governance(msg)
     local path = '/etc/pirania/governance.json'
@@ -56,7 +50,7 @@ end
 
 local function get_clients(msg)
     local clients = {}
-    local output = shell("for ip in $(ip n show | grep -v IP | awk '{print $1}' | sort -ut '|' -k 1,2); do grep $ip /tmp/dhcp.leases; done")
+    local output = utils.unsafe_shell("for ip in $(ip n show | grep -v IP | awk '{print $1}' | sort -ut '|' -k 1,2); do grep $ip /tmp/dhcp.leases; done")
     for line in output:gmatch("[^\n]+") do
         local words = {}
         for w in line:gmatch("%S+") do if w ~= "" then table.insert(words, w) end end

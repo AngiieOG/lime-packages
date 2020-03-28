@@ -5,15 +5,6 @@ local fs = require("nixio.fs")
 
 local utils = {}
 
--- Used to get shell output
-local function shell (command)
-  -- TODO(nicoechaniz): sanitize or evaluate if this is a security risk
-  local handle = io.popen(command)
-  local result = handle:read("*a")
-  handle:close()
-  return result
-end
-
 -- Used to escape "'s by toCSV
 local function escapeCSV (s)
   if string.find(s, '[,"]') then
@@ -184,7 +175,6 @@ end
 
 utils.dateNow = dateNow
 
-utils.shell = shell
 
 utils.redirect_page = function(url)
   return string.format([[

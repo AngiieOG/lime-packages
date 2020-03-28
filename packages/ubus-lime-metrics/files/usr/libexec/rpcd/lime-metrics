@@ -11,13 +11,6 @@ require "ubus"
 local json = require 'luci.jsonc'
 local utils = require("lime.utils")
 
-local function shell(command)
-    -- TODO(nicoechaniz): sanitize or evaluate if this is a security risk
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
 local conn = ubus.connect()
 if not conn then
@@ -47,7 +40,7 @@ local function list_from_file(file)
 end
 
 local function _nslookup_working()
-    local shell_output = shell("nslookup google.com | grep Name -A2 | grep Address")
+    local shell_output = utils.unsafe_shell("nslookup google.com | grep Name -A2 | grep Address")
     return shell_output
 end
 
@@ -58,7 +51,7 @@ local function _get_loss(host, ip_version)
             ping_cmd = "ping6"
         end
     end
-    local shell_output = shell(ping_cmd.." -q  -i 0.1 -c4 -w2 "..host)
+    local shell_output = utils.unsafe_shell(ping_cmd.." -q  -i 0.1 -c4 -w2 "..host)
     local loss = "100"
     if shell_output ~= "" then
         loss = shell_output:match("(%d*)%% packet loss")
@@ -74,10 +67,10 @@ local function _get_metrics(target)
 
     if utils.is_installed("lime-proto-bmx6") then
         loss = _get_loss(node..".mesh", 6)
-        shell_output = shell("netperf -6 -l 10 -H "..node..".mesh| tail -n1| awk '{ print $5 }'")
+        shell_output = utils.unsafe_shell("netperf -6 -l 10 -H "..node..".mesh| tail -n1| awk '{ print $5 }'")
     elseif utils.is_installed("lime-proto-babeld") then
         loss = _get_loss(node, 4)
-        shell_output = shell("netperf -l 10 -H "..node.."| tail -n1| awk '{ print $5 }'")
+        shell_output = utils.unsafe_shell("netperf -l 10 -H "..node.."| tail -n1| awk '{ print $5 }'")
     end
     local bw = 0
     if shell_output ~= "" then
@@ -165,7 +158,7 @@ local function get_station_traffic(msg)
     local iface = msg.iface
     local mac = msg.station_mac
     local result = {}
-    local traffic = shell("iw "..iface.." station get "..mac.." | grep bytes | awk '{ print $3}'")
+    local traffic = utils.unsafe_shell("iw "..iface.." station get "..mac.." | grep bytes | awk '{ print $3}'")
     words = {}
     for w in traffic:gmatch("[^\n]+") do table.insert(words, w) end
     rx = words[1]

@@ -14,13 +14,6 @@ local network = require 'lime.network'
 local ntm = require "luci.model.network".init()
 local libuci = require "uci"
 
-local function shell(command)
-    -- TODO(nicoechaniz): sanitize or evaluate if this is a security risk
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
 function readFile(file)
     local f = io.open(file, "rb")
@@ -79,7 +72,7 @@ local function set_config(msg)
     config.end_batch()
     uci:commit("lime")
     
-    shell("lime-config && lime-apply")
+    utils.unsafe_shell("lime-config && lime-apply")
     
     printJson({ status = 'ok'})
     

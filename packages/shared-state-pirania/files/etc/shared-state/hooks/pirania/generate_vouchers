@@ -25,12 +25,6 @@ local inputTable = JSON.parse(io.stdin:read("*all"))
 local dbPath = uci_conf:get("pirania", "base_config", "db_path")
 local outputTable ={"key,voucher,expiretime,uploadlimit,downloadlimit,amountofmacsallowed,usedmacs,"}
 
-local function shell(command)
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
 local function macs2string(macs)
 	macs = macs or {}
@@ -45,7 +39,7 @@ local function reduce(cb, tab, default)
     return result
 end
 
-local initialHash = shell('md5sum '..dbPath..' | cut -d \' \' -f 1'):gsub("\n","")
+local initialHash = utils.unsafe_shell('md5sum '..dbPath..' | cut -d \' \' -f 1'):gsub("\n","")
 local sortedTable = {}
 
 -- Get vouchers data
@@ -78,9 +72,9 @@ end
 
 -- Write result and calc new md5hash
 io.output(dbPath):write(table.concat(outputTable, '\n').."\n")
-local finalHash = shell('md5sum '..dbPath..' | cut -d \' \' -f 1')
+local finalHash = utils.unsafe_shell('md5sum '..dbPath..' | cut -d \' \' -f 1')
 
 -- If db change trigger captive-portal and setup the new state
 if initialHash ~= finalHash then
-    shell('captive-portal update')
+    utils.unsafe_shell('captive-portal update')
 end

@@ -19,12 +19,5 @@
 local fs = require("nixio.fs")
 local JSON = require("luci.jsonc")
 
-local function shell(command)
-    -- TODO(nicoechaniz): sanitize or evaluate if this is a security risk
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
-io.popen("shared-state insert nodes_and_links", "w"):write(shell("/usr/libexec/rpcd/lime-location call nodes_and_links </dev/null"))
+io.popen("shared-state insert nodes_and_links", "w"):write(utils.unsafe_shell("/usr/libexec/rpcd/lime-location call nodes_and_links </dev/null"))
 

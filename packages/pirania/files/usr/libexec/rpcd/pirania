@@ -11,6 +11,7 @@ require "ubus"
 local json = require 'luci.jsonc'
 local ft = require('voucher.functools')
 local utils = require('voucher.utils')
+local lime_utils = require('lime.utils')
 local logic = require('voucher.logic')
 local dba = require('voucher.db')
 local config = require('voucher.config')
@@ -36,14 +37,14 @@ end
 local function enable(msg)
     uci_cursor:set("pirania", "base_config", "enabled", "1")
     uci_cursor:commit("pirania")
-    utils.shell("captive-portal start")
+    lime_utils.shell("captive-portal start")
     printJson({ success = true })
 end
 
 local function disable(msg)
     uci_cursor:set("pirania", "base_config", "enabled", "0")
     uci_cursor:commit("pirania")
-    utils.shell("captive-portal stop")
+    lime_utils.shell("captive-portal stop")
     printJson({ success = true }) 
 end
 
@@ -139,7 +140,7 @@ end
 local function print_valid_macs(msg)
     local result = {}
     result.macs = {}
-    local output = utils.shell('voucher print_valid_macs')
+    local output = lime_utils.shell('voucher print_valid_macs')
     for line in output:gmatch("[^\n]+") do
         -- local words = {}
         -- for w in line:gmatch("%S+") do if w ~= "" then table.insert(words, w) end end

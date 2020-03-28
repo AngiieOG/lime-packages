@@ -3,6 +3,7 @@
 local dba = require('voucher.db')
 local config = require('voucher.config')
 local utils = require('voucher.utils')
+local lime_utils = require('lime.utils')
 local ft = require('voucher.functools')
 
 local uci = require('uci')
@@ -271,7 +272,7 @@ function logic.iptables_status()
 	if (status == '1') then
 		result.onStart = true
     end
-    local output = utils.shell("iptables --list | grep tcp-reset")
+    local output = lime_utils.shell("iptables --list | grep tcp-reset")
     local contentLen = string.len(output)
     if (contentLen > 1) then
         result.enabled = true

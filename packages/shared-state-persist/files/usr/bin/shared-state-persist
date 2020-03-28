@@ -39,12 +39,6 @@ local function log(text)
 	nixio.syslog('info', 'shared-state-persist: '..text)
 end
 
-local function shell(command)
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-end
 
 local function usePath(path, status)   
 
@@ -70,7 +64,7 @@ end
 
 local function getDevices()
 	log('Scanning devices')
-	return shell("block info | grep -oE \"(\/mnt\/+[a-z]*[0-9])\""):gmatch("[^'\n']+")
+	return utils.unsafe_shell("block info | grep -oE \"(\/mnt\/+[a-z]*[0-9])\""):gmatch("[^'\n']+")
 end
 
 local function isWritable(devicePath)
